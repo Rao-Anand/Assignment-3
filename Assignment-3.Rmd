@@ -1,0 +1,32 @@
+---
+title: "Assignment 3"
+output: html_document
+---
+
+
+```{r}
+library(rio)
+import("Pollution index.xlsx")
+str(Pollution_index)
+boxplot(Pollution_index[,c('particlePollution')])
+#trying standardization
+Pollution_index$particlePollution_S=as.vector(scale(Pollution_index$particlePollution))
+set.seed(123)
+library(cluster)
+vars=c('particlePollution_S')#variables needed
+
+distMatrix=cluster::daisy(Pollution_index[,vars])
+        
+res.pam=cluster::pam(x=distMatrix,
+                     k = 3,
+                     cluster.only = F)
+Pollution_index$cluster=as.factor(res.pam$clustering)
+
+
+
+
+
+
+
+```
+
