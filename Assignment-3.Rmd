@@ -21,11 +21,60 @@ res.pam=cluster::pam(x=distMatrix,
                      k = 3,
                      cluster.only = F)
 Pollution_index$cluster=as.factor(res.pam$clustering)
+theVars=c('particlePollution_S','cluster')
+aggregate(.~cluster,
+          data=Pollution_index[,theVars],
+          FUN=median)
+Pollution_index$cluster=factor(Pollution_index$cluster,
+                           levels=c(1,3,2),
+                           labels=c("low","mid","best"), 
+                           ordered=T)
+
+linkmap=("https://github.com/Rao-Anand/Assignment-3/blob/main/worldMap.geojson")
+
+library(sf)
+
+mapWorld=read_sf("worldMap.geojson")
+
+mapWorld
+head(mapWorld)
+
+#NEED HELP
+mapWorldVars=merge(mapWorld,
+                   Pollution_index,by='ISO3')
+
+library(ggplot2)
+# plot original map
+base=ggplot(data=mapWorld) + geom_sf(fill='grey90',
+                                     color=NA) + theme_classic()
+
+base #base map
+
+colMap= base + geom_sf(data=mapWorldVars,
+                       aes(fill=particlePollution),
+                       color=NA)
+colMap
+
+colMap + scale_fill_gradient(low = 'red',
+                             high= 'blue')
+
+clusterMap= base + geom_sf(data=mapWorldVars,
+                           aes(fill=cluster),
+                           color=NA) # color of border
+clusterMap 
+
+clusterMap+ scale_fill_brewer(palette ='YlOrRd')
 
 
+#previously
+theLegLabels=c('1_worst',2,'3_best')
+theLegTitle="World_Order\n(grey is missing)"
 
-
-
+#now
+clusterMap+ scale_fill_brewer(palette ='YlOrRd',
+                              direction = -1, # color order
+                              labels=theLegLabels,
+                              name=theLegTitle)
 
 
 ```
