@@ -6,21 +6,49 @@ output: html_document
 
 ```{r}
 library(rio)
-import("Pollution index.xlsx")
+Pollution_index=import("Pollution index.xlsx")
 str(Pollution_index)
-boxplot(Pollution_index[,c('particlePollution')])
+```
+```{r}
+boxplot(clustData[,c('particlePollution','pop2022')])
+```
+
+```{r}
+clustData=Pollution_index #copy
+```
+
+```{r}
+clustData[,-1]=lapply(clustData[,-1], scale)
+clustData[,-1]=as.data.frame(clustData[,-1])
+```
+
+
+```{r}
 #trying standardization
-Pollution_index$particlePollution_S=as.vector(scale(Pollution_index$particlePollution))
+clustData$particlePollution=as.vector(clustData$particlePollution)
+clustData$pop2022=as.vector(clustData$pop2022)
+
+```
+
+```{r}
+str(clustData[,-1])
+```
+
+```{r}
+
+
+
 set.seed(123)
 library(cluster)
-vars=c('particlePollution_S')#variables needed
+#vars=c('particlePollution_S')#variables needed
 
-distMatrix=cluster::daisy(Pollution_index[,vars])
+distMatrix=cluster::daisy(clustData[,-1])
         
 res.pam=cluster::pam(x=distMatrix,
                      k = 3,
                      cluster.only = F)
-Pollution_index$cluster=as.factor(res.pam$clustering)
+clustData$cluster=as.factor(res.pam$clustering)
+
 theVars=c('particlePollution_S','cluster')
 aggregate(.~cluster,
           data=Pollution_index[,theVars],
@@ -29,32 +57,48 @@ Pollution_index$cluster=factor(Pollution_index$cluster,
                            levels=c(1,3,2),
                            labels=c("low","mid","best"), 
                            ordered=T)
+```
 
+```{r}
 linkmap=("https://github.com/Rao-Anand/Assignment-3/blob/main/worldMap.geojson")
 
 library(sf)
 
 mapWorld=read_sf("worldMap.geojson")
-
-mapWorld
 head(mapWorld)
+
+```
+```{r}
+merge(mapWorld,
+                   clustData,by.x='NAME',by.y='country')
+```
+
+```{r}
 
 #NEED HELP
 mapWorldVars=merge(mapWorld,
-                   Pollution_index,by='ISO3')
+                   clustData,by.x='NAME',by.y='country')
+
 
 library(ggplot2)
 # plot original map
 base=ggplot(data=mapWorld) + geom_sf(fill='grey90',
                                      color=NA) + theme_classic()
+```
 
+
+
+
+```{r}
 base #base map
 
 colMap= base + geom_sf(data=mapWorldVars,
                        aes(fill=particlePollution),
                        color=NA)
 colMap
+```
 
+```{r}
 colMap + scale_fill_gradient(low = 'red',
                              high= 'blue')
 
