@@ -74,7 +74,6 @@ merge(mapWorld,
 
 ```{r}
 
-#NEED HELP
 mapWorldVars=merge(mapWorld,
                    clustData,by.x='NAME',by.y='country')
 
