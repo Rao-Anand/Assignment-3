@@ -10,7 +10,7 @@ Pollution_index=import("Pollution index.xlsx")
 str(Pollution_index)
 ```
 ```{r}
-boxplot(clustData[,c('particlePollution','pop2022')])
+boxplot(Pollution_index[,c('particlePollution','pop2022')])
 ```
 
 ```{r}
@@ -36,8 +36,6 @@ str(clustData[,-1])
 
 ```{r}
 
-
-
 set.seed(123)
 library(cluster)
 #vars=c('particlePollution_S')#variables needed
@@ -49,6 +47,7 @@ res.pam=cluster::pam(x=distMatrix,
                      cluster.only = F)
 clustData$cluster=as.factor(res.pam$clustering)
 
+##ERROR 
 theVars=c('particlePollution_S','cluster')
 aggregate(.~cluster,
           data=Pollution_index[,theVars],
